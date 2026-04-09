@@ -12,7 +12,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1/2, 2/2]
+        include:
+          - shard: 1/2
+            shard_id: shard-1-of-2
+          - shard: 2/2
+            shard_id: shard-2-of-2
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,19 +36,19 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: blob-report-${{ matrix.shard }}
+          name: blob-report-${{ matrix.shard_id }}
           path: blob-report/
           retention-days: 30
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: allure-results-${{ matrix.shard }}
+          name: allure-results-${{ matrix.shard_id }}
           path: allure-results/
           retention-days: 30
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: test-results-${{ matrix.shard }}
+          name: test-results-${{ matrix.shard_id }}
           path: test-results/
           retention-days: 30
   reports:
