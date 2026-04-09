@@ -36,7 +36,7 @@ export default tseslint.config(
         ...globals.node,
       },
       parserOptions: {
-        project: './tsconfig.json',
+        projectService: true,
         tsconfigRootDir,
       },
     },

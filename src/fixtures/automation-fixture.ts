@@ -10,6 +10,8 @@ import type {
 } from '../models/automation-account';
 import { CartPage } from '../pages/cart-page';
 import { SignupPage } from '../pages/signup-page';
+import { MainPage } from '../pages/main-page';
+import { RegistrationPage } from '../pages/registration-page';
 
 type AutomationAccountManager = {
   trackForCleanup: (account: AutomationAccountCredentials) => void;
@@ -23,7 +25,9 @@ type AutomationFixtures = {
   accountBuilder: AutomationAccountBuilder;
   automationAccount: AutomationAccountManager;
   cartPage: CartPage;
+  mainPage: MainPage;
   productCatalog: ProductCatalogGateway;
+  registrationPage: RegistrationPage;
   signupPage: SignupPage;
 };
 
@@ -62,11 +66,17 @@ export const test = base.extend<AutomationFixtures>({
       GatewayFactory.createProductCatalogGateway(page.context().request),
     );
   },
+  registrationPage: async ({ page }, use) => {
+    await use(new RegistrationPage(page));
+  },
   signupPage: async ({ page }, use) => {
     await use(new SignupPage(page));
   },
   cartPage: async ({ page }, use) => {
     await use(new CartPage(page));
+  },
+  mainPage: async ({ page }, use) => {
+    await use(new MainPage(page));
   },
 });
 
