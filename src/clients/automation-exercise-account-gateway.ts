@@ -12,9 +12,22 @@ type ApiMessageResponse = {
   message: string;
 };
 
+/**
+ * API client implementation for managing Automation Exercise accounts.
+ * Provides methods to create, verify, and delete user accounts via REST API.
+ */
 export class AutomationExerciseAccountGateway implements AutomationAccountGateway {
+  /**
+   * Initializes the account gateway with an API request context.
+   * @param request - The Playwright APIRequestContext used to make API calls.
+   */
   constructor(private readonly request: APIRequestContext) {}
 
+  /**
+   * Creates a new user account via the API.
+   * @param account - The account details to create.
+   * @throws Error if the API response indicates failure.
+   */
   async createAccount(account: AutomationAccount): Promise<void> {
     const response = await this.request.post('/api/createAccount', {
       form: account,
@@ -29,6 +42,11 @@ export class AutomationExerciseAccountGateway implements AutomationAccountGatewa
     });
   }
 
+  /**
+   * Verifies that a user account exists and credentials are correct.
+   * @param account - The account credentials to verify.
+   * @throws Error if the API response indicates failure or user doesn't exist.
+   */
   async verifyLogin(account: AutomationAccountCredentials): Promise<void> {
     const response = await this.request.post('/api/verifyLogin', {
       form: account,
@@ -43,6 +61,11 @@ export class AutomationExerciseAccountGateway implements AutomationAccountGatewa
     });
   }
 
+  /**
+   * Deletes a user account via the API.
+   * @param account - The account credentials for the account to delete.
+   * @throws Error if the API response indicates failure.
+   */
   async deleteAccount(account: AutomationAccountCredentials): Promise<void> {
     const response = await this.request.delete('/api/deleteAccount', {
       form: account,

@@ -1,11 +1,16 @@
-import type {
-  AutomationAccount,
-  AutomationAccountOverrides,
-} from '../models/automation-account';
+import type { AutomationAccount } from '../models/automation-account';
 
+/**
+ * Builder class for creating automation test accounts.
+ * Uses the builder pattern to allow flexible account creation with optional overrides.
+ */
 export class AutomationAccountBuilder {
   private readonly draft: AutomationAccount;
 
+  /**
+   * Initializes the builder with default automation account values.
+   * Generates a unique email using timestamp and random number.
+   */
   constructor() {
     const uniqueId = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -30,11 +35,10 @@ export class AutomationAccountBuilder {
     };
   }
 
-  with(overrides: AutomationAccountOverrides): this {
-    Object.assign(this.draft, overrides);
-    return this;
-  }
-
+  /**
+   * Builds and returns a copy of the final automation account.
+   * @returns A new copy of the constructed account.
+   */
   build(): AutomationAccount {
     return { ...this.draft };
   }

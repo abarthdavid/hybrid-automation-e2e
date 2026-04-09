@@ -3,6 +3,10 @@ import { expect } from '@playwright/test';
 
 import type { AutomationAccount } from '../models/automation-account';
 
+/**
+ * Page object model for the registration page.
+ * Provides methods to interact with and verify the signup/registration form.
+ */
 export class RegistrationPage {
   private readonly nameInput: Locator;
   private readonly loginPasswordInput: Locator;
@@ -26,6 +30,10 @@ export class RegistrationPage {
   private readonly accountCreatedHeading: Locator;
   private readonly signupExistingEmailError: Locator;
 
+  /**
+   * Initializes the RegistrationPage with locators for all form elements.
+   * @param page - The Playwright page object used to locate elements.
+   */
   constructor(private readonly page: Page) {
     this.nameInput = page.getByRole('textbox', { name: 'Name' });
     this.loginPasswordInput = page.getByRole('textbox', { name: 'Password' });
@@ -56,10 +64,17 @@ export class RegistrationPage {
     );
   }
 
+  /**
+   * Navigates to the signup/registration page.
+   */
   async goto(): Promise<void> {
     await this.page.goto('/signup');
   }
 
+  /**
+   * Fills out and submits the registration form with the provided account information.
+   * @param account - The automation account containing all required registration details.
+   */
   async completeRegistration(account: AutomationAccount): Promise<void> {
     await this.titleMrRadio.check();
     await this.passwordInput.fill(account.password);
@@ -79,10 +94,16 @@ export class RegistrationPage {
     await this.createAccountButton.click();
   }
 
+  /**
+   * Verifies that the "Account Created!" success message is visible.
+   */
   async expectAccountCreated(): Promise<void> {
     await expect(this.accountCreatedHeading).toBeVisible();
   }
 
+  /**
+   * Verifies that the "Email Address already exist!" error message is visible.
+   */
   async expectExistingEmailError(): Promise<void> {
     await expect(this.signupExistingEmailError).toBeVisible();
   }
