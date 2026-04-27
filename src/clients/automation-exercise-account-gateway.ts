@@ -1,16 +1,22 @@
 import type { APIRequestContext } from '@playwright/test';
-import { expect } from '@playwright/test';
 
-import type { AutomationAccountGateway } from '../contracts/automation-account-gateway';
+import type {
+  AccountGatewayResponse,
+  ApiMessageResponse,
+  AutomationAccountGateway,
+} from '../contracts/automation-account-gateway';
 import type {
   AutomationAccount,
   AutomationAccountCredentials,
 } from '../models/automation-account';
 
-type ApiMessageResponse = {
-  responseCode: number;
-  message: string;
-};
+const ACCOUNT_API_PATHS = {
+  createAccount: '/api/createAccount',
+  verifyLogin: '/api/verifyLogin',
+  deleteAccount: '/api/deleteAccount',
+} as const;
+
+type RequestMethod = 'POST' | 'DELETE';
 
 /**
  * API client implementation for managing Automation Exercise accounts.
@@ -23,23 +29,37 @@ export class AutomationExerciseAccountGateway implements AutomationAccountGatewa
    */
   constructor(private readonly request: APIRequestContext) {}
 
+  private async requestMessageResponse(
+    path: string,
+    method: RequestMethod,
+    form: AutomationAccount | AutomationAccountCredentials,
+  ): Promise<AccountGatewayResponse> {
+    const response = await this.request.fetch(path, {
+      method,
+      form,
+    });
+    const body = (await response.json()) as ApiMessageResponse;
+
+    return {
+      status: response.status(),
+      ok: response.ok(),
+      body,
+    };
+  }
+
   /**
    * Creates a new user account via the API.
    * @param account - The account details to create.
    * @throws Error if the API response indicates failure.
    */
-  async createAccount(account: AutomationAccount): Promise<void> {
-    const response = await this.request.post('/api/createAccount', {
-      form: account,
-    });
-    const body = (await response.json()) as ApiMessageResponse;
-
-    expect(response.status()).toBe(200);
-    await expect(response).toBeOK();
-    expect(body).toEqual({
-      responseCode: 201,
-      message: 'User created!',
-    });
+  async createAccount(
+    account: AutomationAccount,
+  ): Promise<AccountGatewayResponse> {
+    return this.requestMessageResponse(
+      ACCOUNT_API_PATHS.createAccount,
+      'POST',
+      account,
+    );
   }
 
   /**
@@ -47,18 +67,14 @@ export class AutomationExerciseAccountGateway implements AutomationAccountGatewa
    * @param account - The account credentials to verify.
    * @throws Error if the API response indicates failure or user doesn't exist.
    */
-  async verifyLogin(account: AutomationAccountCredentials): Promise<void> {
-    const response = await this.request.post('/api/verifyLogin', {
-      form: account,
-    });
-    const body = (await response.json()) as ApiMessageResponse;
-
-    expect(response.status()).toBe(200);
-    await expect(response).toBeOK();
-    expect(body).toEqual({
-      responseCode: 200,
-      message: 'User exists!',
-    });
+  async verifyLogin(
+    account: AutomationAccountCredentials,
+  ): Promise<AccountGatewayResponse> {
+    return this.requestMessageResponse(
+      ACCOUNT_API_PATHS.verifyLogin,
+      'POST',
+      account,
+    );
   }
 
   /**
@@ -66,17 +82,13 @@ export class AutomationExerciseAccountGateway implements AutomationAccountGatewa
    * @param account - The account credentials for the account to delete.
    * @throws Error if the API response indicates failure.
    */
-  async deleteAccount(account: AutomationAccountCredentials): Promise<void> {
-    const response = await this.request.delete('/api/deleteAccount', {
-      form: account,
-    });
-    const body = (await response.json()) as ApiMessageResponse;
-
-    expect(response.status()).toBe(200);
-    await expect(response).toBeOK();
-    expect(body).toEqual({
-      responseCode: 200,
-      message: 'Account deleted!',
-    });
+  async deleteAccount(
+    account: AutomationAccountCredentials,
+  ): Promise<AccountGatewayResponse> {
+    return this.requestMessageResponse(
+      ACCOUNT_API_PATHS.deleteAccount,
+      'DELETE',
+      account,
+    );
   }
 }

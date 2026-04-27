@@ -1,6 +1,10 @@
 import { expect, test as base } from '@playwright/test';
 
 import { AutomationAccountBuilder } from '../builders/automation-account-builder';
+import type {
+  AccountGatewayResponse,
+  ApiMessageResponse,
+} from '../contracts/automation-account-gateway';
 import type { ProductCatalogGateway } from '../contracts/product-catalog-gateway';
 import { GatewayFactory } from '../factories/gateway-factory';
 import type {
@@ -32,6 +36,26 @@ type AutomationAccountManager = {
    * @returns The created account.
    */
   createViaApi: () => Promise<AutomationAccount>;
+};
+
+const expectSuccessfulMessageResponse = (
+  result: AccountGatewayResponse,
+  expectedBody: ApiMessageResponse,
+): void => {
+  if (result.status !== 200 || !result.ok) {
+    throw new Error(
+      `Unexpected API transport response: ${JSON.stringify(result)}`,
+    );
+  }
+
+  if (
+    result.body.responseCode !== expectedBody.responseCode ||
+    result.body.message !== expectedBody.message
+  ) {
+    throw new Error(
+      `Unexpected API message response. Expected ${JSON.stringify(expectedBody)}, got ${JSON.stringify(result.body)}`,
+    );
+  }
 };
 
 /**
@@ -74,19 +98,33 @@ export const test = base.extend<AutomationFixtures>({
       },
       createViaApi: async () => {
         const account = new AutomationAccountBuilder().build();
+        const result = await accountGateway.createAccount(account);
 
-        await accountGateway.createAccount(account);
+        expectSuccessfulMessageResponse(result, {
+          responseCode: 201,
+          message: 'User created!',
+        });
         accountsToDelete.push(account);
 
         return account;
       },
       verifyLogin: async (account) => {
-        await accountGateway.verifyLogin(account);
+        const result = await accountGateway.verifyLogin(account);
+
+        expectSuccessfulMessageResponse(result, {
+          responseCode: 200,
+          message: 'User exists!',
+        });
       },
     });
 
     for (const account of accountsToDelete.reverse()) {
-      await accountGateway.deleteAccount(account);
+      const result = await accountGateway.deleteAccount(account);
+
+      expectSuccessfulMessageResponse(result, {
+        responseCode: 200,
+        message: 'Account deleted!',
+      });
     }
   },
   productCatalog: async ({ page }, use) => {
