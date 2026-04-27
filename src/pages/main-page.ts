@@ -14,7 +14,7 @@ export class MainPage {
    * Initializes the MainPage with header locators.
    * @param page - The Playwright page object used to locate elements.
    */
-  constructor(private readonly page: Page) {
+  constructor(page: Page) {
     this.headerMiddle = page.locator('.header-middle');
     this.logoutLink = this.headerMiddle.locator('a[href="/logout"]');
     this.loginLink = this.headerMiddle.locator('a[href="/login"]');

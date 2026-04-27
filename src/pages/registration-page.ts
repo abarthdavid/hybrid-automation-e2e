@@ -8,9 +8,6 @@ import type { AutomationAccount } from '../models/automation-account';
  * Provides methods to interact with and verify the signup/registration form.
  */
 export class RegistrationPage {
-  private readonly nameInput: Locator;
-  private readonly loginPasswordInput: Locator;
-  private readonly signupButton: Locator;
   private readonly titleMrRadio: Locator;
   private readonly passwordInput: Locator;
   private readonly birthDaySelect: Locator;
@@ -35,9 +32,6 @@ export class RegistrationPage {
    * @param page - The Playwright page object used to locate elements.
    */
   constructor(private readonly page: Page) {
-    this.nameInput = page.getByRole('textbox', { name: 'Name' });
-    this.loginPasswordInput = page.getByRole('textbox', { name: 'Password' });
-    this.signupButton = page.getByRole('button', { name: 'Signup' });
     this.titleMrRadio = page.getByRole('radio', { name: 'Mr.' });
     this.passwordInput = page.getByRole('textbox', { name: 'Password *' });
     this.birthDaySelect = page.locator('#days');
