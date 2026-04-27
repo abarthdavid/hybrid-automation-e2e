@@ -87,7 +87,7 @@ export const test = base.extend<AutomationFixtures>({
   accountBuilder: async ({}, use) => {
     await use(new AutomationAccountBuilder());
   },
-  automationAccount: async ({ request }, use) => {
+  automationAccount: async ({ request, accountBuilder }, use) => {
     const accountsToDelete: AutomationAccountCredentials[] = [];
     const accountGateway =
       GatewayFactory.createAutomationAccountGateway(request);
@@ -97,7 +97,7 @@ export const test = base.extend<AutomationFixtures>({
         accountsToDelete.push(account);
       },
       createViaApi: async () => {
-        const account = new AutomationAccountBuilder().build();
+        const account = accountBuilder.build();
         const result = await accountGateway.createAccount(account);
 
         expectSuccessfulMessageResponse(result, {
@@ -119,18 +119,20 @@ export const test = base.extend<AutomationFixtures>({
     });
 
     for (const account of accountsToDelete.reverse()) {
-      const result = await accountGateway.deleteAccount(account);
+      try {
+        const result = await accountGateway.deleteAccount(account);
 
-      expectSuccessfulMessageResponse(result, {
-        responseCode: 200,
-        message: 'Account deleted!',
-      });
+        expectSuccessfulMessageResponse(result, {
+          responseCode: 200,
+          message: 'Account deleted!',
+        });
+      } catch (error) {
+        console.error(`Failed to delete account ${account.email}:`, error);
+      }
     }
   },
   productCatalog: async ({ page }, use) => {
-    await use(
-      GatewayFactory.createProductCatalogGateway(page.context().request),
-    );
+    await use(GatewayFactory.createProductCatalogGateway(page.request));
   },
   registrationPage: async ({ page }, use) => {
     await use(new RegistrationPage(page));
