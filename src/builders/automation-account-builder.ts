@@ -36,10 +36,21 @@ export class AutomationAccountBuilder {
   }
 
   /**
+   * Applies partial field overrides to the current draft.
+   * @param overrides Fields to override on the account draft.
+   * @returns The current builder instance for fluent chaining.
+   */
+  withOverrides(overrides: Partial<AutomationAccount>): this {
+    Object.assign(this.draft, overrides);
+    return this;
+  }
+
+  /**
    * Builds and returns a copy of the final automation account.
+   * Optional overrides can be applied without mutating the internal draft.
    * @returns A new copy of the constructed account.
    */
-  build(): AutomationAccount {
-    return { ...this.draft };
+  build(overrides: Partial<AutomationAccount> = {}): AutomationAccount {
+    return { ...this.draft, ...overrides };
   }
 }

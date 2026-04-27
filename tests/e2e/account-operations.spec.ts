@@ -6,7 +6,9 @@ test('@smoke registers a new user and verifies the account through the API', asy
   signupPage,
   registrationPage,
 }) => {
-  const account = accountBuilder.build();
+  const account = accountBuilder
+    .withOverrides({ name: 'Playwright Override User' })
+    .build({ city: 'Budapest' });
 
   await signupPage.goto();
   await signupPage.startSignup(account.name, account.email);
