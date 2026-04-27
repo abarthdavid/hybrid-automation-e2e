@@ -1,6 +1,6 @@
 import { expect, test } from '@/fixtures/automation-fixture';
 
-test('adds a random product from the API catalog to the cart', async ({
+test('adds a product from the API catalog to the cart', async ({
   cartPage,
   productCatalog,
 }) => {
@@ -8,17 +8,12 @@ test('adds a random product from the API catalog to the cart', async ({
 
   expect(products.length).toBeGreaterThan(0);
 
-  const randomIndex = Math.floor(Math.random() * products.length);
-  const randomProduct = products[randomIndex];
+  const selectedProduct = products[0];
 
-  expect(randomProduct).toBeDefined();
+  expect(selectedProduct).toBeDefined();
 
-  if (!randomProduct) {
-    throw new Error('Expected at least one product from the catalog API.');
-  }
-
-  await productCatalog.addToCart(randomProduct.id);
+  await productCatalog.addToCart(selectedProduct.id);
 
   await cartPage.goto();
-  await cartPage.expectProductInCart(randomProduct.id, randomProduct.name);
+  await cartPage.expectProductInCart(selectedProduct.id, selectedProduct.name);
 });
