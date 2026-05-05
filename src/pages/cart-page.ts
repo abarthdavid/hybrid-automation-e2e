@@ -33,4 +33,31 @@ export class CartPage {
     await expect(productRow).toBeVisible();
     await expect(productRow).toContainText(productName);
   }
+
+  /**
+   * Proceeds from cart to checkout page.
+   */
+  async proceedToCheckout(): Promise<void> {
+    const checkoutButton = this.page.locator('.check_out');
+
+    await expect(checkoutButton).toBeVisible();
+    await checkoutButton.click();
+    await expect(this.page).toHaveURL(/\/checkout/);
+  }
+
+  /**
+   * Verifies that checkout summary contains all expected product descriptions.
+   * @param expectedDescriptions - Product descriptions expected in checkout summary.
+   */
+  async expectCheckoutSummaryContainsDescriptions(
+    expectedDescriptions: string[],
+  ): Promise<void> {
+    const checkoutSummary = this.page.locator('#cart_items');
+
+    await expect(checkoutSummary).toBeVisible();
+
+    for (const description of expectedDescriptions) {
+      await expect(checkoutSummary).toContainText(description);
+    }
+  }
 }
