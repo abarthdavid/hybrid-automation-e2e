@@ -32,6 +32,7 @@ npm test
 npm run test:smoke
 npm run report:html
 npm run report:allure
+npm run report:allure:generate
 ```
 
 ## Architecture rules
@@ -45,6 +46,11 @@ npm run report:allure
 - HTML report output: `playwright-report/`
 - Allure raw results: `allure-results/`
 - Generated Allure site: `allure-report/`
+- Test commands clear stale `allure-results/` content before execution so the Allure report reflects only the current run.
+- `npm run report:allure` regenerates the report and opens it via the Allure local web server.
+- `npm run report:allure:generate` only regenerates static report files if you need artifacts without opening them.
+- Account teardown publishes cleanup status and failure counts as Allure parameters and attaches an `account-cleanup-summary` artifact per test.
+- Set `CLEANUP_STRICT_MODE=true` in CI to fail a test when tracked account deletion leaves residue.
 - Failed CI runs retain Playwright traces inside uploaded `test-results` artifacts.
 
 ## Git hooks

@@ -1,4 +1,5 @@
 import { expect, test as base } from '@playwright/test';
+import * as allure from 'allure-js-commons';
 
 import { AutomationAccountBuilder } from '../builders/automation-account-builder';
 import type {
@@ -15,6 +16,71 @@ import { CartPage } from '../pages/cart-page';
 import { SignupPage } from '../pages/signup-page';
 import { MainPage } from '../pages/main-page';
 import { RegistrationPage } from '../pages/registration-page';
+
+type CleanupFailure = {
+  email: string;
+  reason: string;
+};
+
+const isCleanupStrictMode = (): boolean => {
+  if (!process.env.CI) {
+    return false;
+  }
+
+  return ['1', 'true', 'yes', 'on'].includes(
+    process.env.CLEANUP_STRICT_MODE?.toLowerCase() ?? '',
+  );
+};
+
+const toCleanupFailureReason = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.stack ?? error.message;
+  }
+
+  return String(error);
+};
+
+const buildCleanupSummary = (
+  deletedAccountCount: number,
+  cleanupFailures: CleanupFailure[],
+): string => {
+  const summaryLines = [
+    `Cleanup attempted for ${deletedAccountCount + cleanupFailures.length} account(s).`,
+    `Cleanup succeeded for ${deletedAccountCount} account(s).`,
+    `Cleanup failed for ${cleanupFailures.length} account(s).`,
+  ];
+
+  if (cleanupFailures.length > 0) {
+    summaryLines.push('', 'Deletion failures:');
+
+    for (const failure of cleanupFailures) {
+      summaryLines.push(`- ${failure.email}: ${failure.reason}`);
+    }
+  }
+
+  return summaryLines.join('\n');
+};
+
+const publishCleanupSummaryToAllure = async (
+  deletedAccountCount: number,
+  cleanupFailures: CleanupFailure[],
+  cleanupSummary: string,
+): Promise<void> => {
+  const cleanupStatus = cleanupFailures.length === 0 ? 'passed' : 'failed';
+
+  await allure.parameter('account_cleanup_status', cleanupStatus);
+  await allure.parameter(
+    'account_cleanup_attempted',
+    String(deletedAccountCount + cleanupFailures.length),
+  );
+  await allure.parameter(
+    'account_cleanup_failures',
+    String(cleanupFailures.length),
+  );
+  await allure.attachment('account-cleanup-summary', cleanupSummary, {
+    contentType: 'text/plain',
+  });
+};
 
 /**
  * Manager interface for account-related operations in tests.
@@ -87,8 +153,10 @@ export const test = base.extend<AutomationFixtures>({
   accountBuilder: async ({}, use) => {
     await use(new AutomationAccountBuilder());
   },
-  automationAccount: async ({ request, accountBuilder }, use) => {
+  automationAccount: async ({ request, accountBuilder }, use, testInfo) => {
     const accountsToDelete: AutomationAccountCredentials[] = [];
+    const cleanupFailures: CleanupFailure[] = [];
+    let deletedAccountCount = 0;
     const accountGateway =
       GatewayFactory.createAutomationAccountGateway(request);
 
@@ -126,9 +194,40 @@ export const test = base.extend<AutomationFixtures>({
           responseCode: 200,
           message: 'Account deleted!',
         });
+        deletedAccountCount += 1;
       } catch (error) {
+        cleanupFailures.push({
+          email: account.email,
+          reason: toCleanupFailureReason(error),
+        });
         console.error(`Failed to delete account ${account.email}:`, error);
       }
+    }
+
+    const cleanupSummary = buildCleanupSummary(
+      deletedAccountCount,
+      cleanupFailures,
+    );
+
+    await publishCleanupSummaryToAllure(
+      deletedAccountCount,
+      cleanupFailures,
+      cleanupSummary,
+    );
+
+    await testInfo.attach('account-cleanup-summary', {
+      body: cleanupSummary,
+      contentType: 'text/plain',
+    });
+
+    if (cleanupFailures.length === 0) {
+      return;
+    }
+
+    console.warn(cleanupSummary);
+
+    if (isCleanupStrictMode()) {
+      throw new Error(cleanupSummary);
     }
   },
   productCatalog: async ({ page }, use) => {
