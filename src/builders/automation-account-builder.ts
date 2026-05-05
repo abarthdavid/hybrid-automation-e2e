@@ -1,3 +1,4 @@
+import { fakerEN as faker } from '@faker-js/faker';
 import type { AutomationAccount } from '../models/automation-account';
 
 /**
@@ -9,29 +10,36 @@ export class AutomationAccountBuilder {
 
   /**
    * Initializes the builder with default automation account values.
-   * Generates a unique email using timestamp and random number.
+   * Generates realistic data while keeping field formats compatible with registration flows.
    */
   constructor() {
-    const uniqueId = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+    const baseEmail = faker.internet.email({
+      firstName: firstName.toLowerCase(),
+      lastName: lastName.toLowerCase(),
+      provider: 'example.com',
+    });
+    const [localPart, domain] = baseEmail.split('@');
 
     this.draft = {
-      name: 'Playwright Test User',
-      email: `pw-${uniqueId}@example.com`,
+      name: `${firstName} ${lastName}`,
+      email: `${localPart}+${Date.now()}@${domain}`,
       password: 'Pass123!',
-      title: 'Mr',
-      birth_date: '17',
-      birth_month: '2',
-      birth_year: '2005',
-      firstname: 'Playwright',
-      lastname: 'User',
-      company: 'QA',
-      address1: 'Street 1',
-      address2: 'Suite 2',
+      title: faker.helpers.arrayElement(['Mr', 'Mrs']),
+      birth_date: String(faker.number.int({ min: 1, max: 28 })),
+      birth_month: String(faker.number.int({ min: 1, max: 12 })),
+      birth_year: String(faker.number.int({ min: 1985, max: 2005 })),
+      firstname: firstName,
+      lastname: lastName,
+      company: faker.company.name(),
+      address1: faker.location.streetAddress(),
+      address2: faker.location.secondaryAddress(),
       country: 'India',
-      zipcode: '12345',
-      state: 'State',
-      city: 'City',
-      mobile_number: '1234567890',
+      zipcode: faker.location.zipCode('#####'),
+      state: faker.location.state(),
+      city: faker.location.city(),
+      mobile_number: faker.string.numeric(10),
     };
   }
 

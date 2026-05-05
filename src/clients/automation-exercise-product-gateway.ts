@@ -2,7 +2,7 @@ import type { APIRequestContext } from '@playwright/test';
 import { expect } from '@playwright/test';
 
 import type { ProductCatalogGateway } from '../contracts/product-catalog-gateway';
-import type { ProductListResponse } from '../models/product';
+import type { Product, ProductListResponse } from '../models/product';
 
 /**
  * API client implementation for fetching products and managing shopping cart items.
@@ -20,7 +20,7 @@ export class AutomationExerciseProductGateway implements ProductCatalogGateway {
    * @returns An array of products from the catalog.
    * @throws Error if the API response indicates failure.
    */
-  async listProducts() {
+  async listProducts(): Promise<Product[]> {
     const response = await this.request.get('/api/productsList');
     const body = (await response.json()) as ProductListResponse;
 
