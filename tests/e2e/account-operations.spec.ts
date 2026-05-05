@@ -1,53 +1,67 @@
 import { test } from '../../src/fixtures/automation-fixture';
+import type { AutomationAccount } from '../../src/models/automation-account';
 
-test('@smoke registers a new user and verifies the account through the API', async ({
-  accountBuilder,
-  automationAccount,
-  signupPage,
-  registrationPage,
-}) => {
-  const account = accountBuilder
-    .withOverrides({ name: 'Playwright Override User' })
-    .build({ city: 'Budapest' });
+test.describe('Account operations', () => {
+  test.beforeEach(async ({ signupPage }) => {
+    await signupPage.goto();
+  });
 
-  await signupPage.goto();
-  await signupPage.startSignup(account.name, account.email);
-  await registrationPage.completeRegistration(account);
-  await registrationPage.expectAccountCreated();
+  test.describe('Registration', () => {
+    test('@smoke registers a new user and verifies the account through the API', async ({
+      accountBuilder,
+      automationAccount,
+      signupPage,
+      registrationPage,
+    }) => {
+      const account = accountBuilder
+        .withOverrides({ name: 'Playwright Override User' })
+        .build({ city: 'Budapest' });
 
-  automationAccount.trackForCleanup(account);
-  await automationAccount.verifyLogin(account);
-});
+      await signupPage.startSignup(account.name, account.email);
+      await registrationPage.completeRegistration(account);
+      await registrationPage.expectAccountCreated();
 
-test('shows an error when registering with an existing email', async ({
-  automationAccount,
-  signupPage,
-  registrationPage,
-}) => {
-  const existingAccount = await automationAccount.createViaApi();
+      automationAccount.trackForCleanup(account);
+      await automationAccount.verifyLogin(account);
+    });
 
-  await signupPage.goto();
-  await signupPage.startSignup(existingAccount.name, existingAccount.email);
+    test('shows an error when registering with an existing email', async ({
+      automationAccount,
+      signupPage,
+      registrationPage,
+    }) => {
+      const existingAccount = await automationAccount.createViaApi();
 
-  await automationAccount.verifyLogin(existingAccount);
-  await registrationPage.expectExistingEmailError();
-});
+      await signupPage.startSignup(existingAccount.name, existingAccount.email);
 
-test(' user should be able to logout via UI', async ({
-  mainPage,
-  automationAccount,
-  signupPage,
-}) => {
-  const newAccount = await automationAccount.createViaApi();
+      await automationAccount.verifyLogin(existingAccount);
+      await registrationPage.expectExistingEmailError();
+    });
+  });
 
-  await signupPage.goto();
-  await signupPage.startLogin(newAccount.email, newAccount.password);
+  test.describe('Authentication', () => {
+    let createdAccount: AutomationAccount;
 
-  await mainPage.expectHeaderMiddleVisible();
-  await mainPage.expectLogoutVisible();
+    test.beforeEach(async ({ automationAccount }) => {
+      createdAccount = await automationAccount.createViaApi();
+    });
 
-  await mainPage.clickLogout();
+    test('user should be able to logout via UI', async ({
+      mainPage,
+      signupPage,
+    }) => {
+      await signupPage.startLogin(
+        createdAccount.email,
+        createdAccount.password,
+      );
 
-  await mainPage.expectHeaderMiddleVisible();
-  await mainPage.expectLoginVisible();
+      await mainPage.expectHeaderMiddleVisible();
+      await mainPage.expectLogoutVisible();
+
+      await mainPage.clickLogout();
+
+      await mainPage.expectHeaderMiddleVisible();
+      await mainPage.expectLoginVisible();
+    });
+  });
 });
