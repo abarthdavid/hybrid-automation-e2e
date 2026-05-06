@@ -19,3 +19,13 @@ export type ProductListResponse = {
   /** The array of products in the response. */
   products: Product[];
 };
+
+/**
+ * API response for cart operations.
+ */
+export type CartResponse = {
+  /** The HTTP response code from the API. */
+  responseCode: number;
+  /** The response message from the API. */
+  message: string;
+};

@@ -2,6 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
 import type { AutomationAccount } from '../models/automation-account';
+import { acceptConsentIfPresent } from './consent-helper';
 
 /**
  * Page object model for the registration page.
@@ -63,6 +64,7 @@ export class RegistrationPage {
    */
   async goto(): Promise<void> {
     await this.page.goto('/signup');
+    await acceptConsentIfPresent(this.page);
   }
 
   /**

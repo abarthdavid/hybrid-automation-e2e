@@ -1,8 +1,8 @@
-import type { APIRequestContext } from '@playwright/test';
+import type { APIRequestContext, APIResponse } from '@playwright/test';
 import { expect } from '@playwright/test';
 
 import type { ProductCatalogGateway } from '../contracts/product-catalog-gateway';
-import type { Product, ProductListResponse } from '../models/product';
+import type { CartResponse, ProductListResponse } from '../models/product';
 
 /**
  * API client implementation for fetching products and managing shopping cart items.
@@ -20,7 +20,7 @@ export class AutomationExerciseProductGateway implements ProductCatalogGateway {
    * @returns An array of products from the catalog.
    * @throws Error if the API response indicates failure.
    */
-  async listProducts(): Promise<Product[]> {
+  async listProducts() {
     const response = await this.request.get('/api/productsList');
     const body = (await response.json()) as ProductListResponse;
 
@@ -32,14 +32,24 @@ export class AutomationExerciseProductGateway implements ProductCatalogGateway {
   }
 
   /**
-   * Adds a product to the shopping cart via the API.
+   * Adds a product to the shopping cart via the API and returns the raw response.
    * @param productId - The ID of the product to add to cart.
-   * @throws Error if the API response indicates failure.
    */
-  async addToCart(productId: number): Promise<void> {
-    const response = await this.request.get(`/add_to_cart/${productId}`);
+  async addToCart(productId: number): Promise<APIResponse> {
+    return await this.request.get(`/add_to_cart/${productId}`);
+  }
 
-    expect(response.status()).toBe(200);
-    await expect(response).toBeOK();
+  /**
+   * Adds a product to the shopping cart and returns the parsed response body.
+   * @param productId - The ID of the product to add to cart.
+   */
+  async addToCartAndGetResponse(productId: number): Promise<CartResponse> {
+    const response = await this.request.get(`/add_to_cart/${productId}`);
+    const contentType = response.headers()['content-type'] ?? '';
+    if (contentType.includes('application/json')) {
+      return (await response.json()) as CartResponse;
+    }
+    const text = await response.text();
+    return { responseCode: response.status(), message: text };
   }
 }

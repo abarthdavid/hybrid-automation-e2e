@@ -63,5 +63,15 @@ test.describe('Account operations', () => {
       await mainPage.expectHeaderMiddleVisible();
       await mainPage.expectLoginVisible();
     });
+
+    test('user should not be able to login with incorrect e-mail', async ({
+      signupPage,
+    }) => {
+      const invalidEmail = 'testtest.com';
+
+      await signupPage.goto();
+      await signupPage.startLogin(invalidEmail, createdAccount.password);
+      await signupPage.expectLoginErrorInvalidEmail(invalidEmail);
+    });
   });
 });

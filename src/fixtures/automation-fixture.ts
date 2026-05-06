@@ -13,6 +13,7 @@ import type {
   AutomationAccountCredentials,
 } from '../models/automation-account';
 import { CartPage } from '../pages/cart-page';
+import { acceptConsentIfPresent } from '../pages/consent-helper';
 import { SignupPage } from '../pages/signup-page';
 import { MainPage } from '../pages/main-page';
 import { RegistrationPage } from '../pages/registration-page';
@@ -247,11 +248,9 @@ export const test = base.extend<AutomationFixtures>({
   },
 });
 
-test.beforeEach(async ({ page }) => {
-  const consentButton = page.getByRole('button', { name: 'Consent' });
-
-  await page.addLocatorHandler(consentButton, async () => {
-    await consentButton.click();
+test.beforeEach(({ page }) => {
+  page.on('domcontentloaded', () => {
+    void acceptConsentIfPresent(page);
   });
 });
 

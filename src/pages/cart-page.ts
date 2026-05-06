@@ -1,6 +1,8 @@
 import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
+import { acceptConsentIfPresent } from './consent-helper';
+
 /**
  * Page object model for the shopping cart page.
  * Provides methods to navigate to and verify cart contents.
@@ -17,6 +19,7 @@ export class CartPage {
    */
   async goto(): Promise<void> {
     await this.page.goto('/view_cart');
+    await acceptConsentIfPresent(this.page);
   }
 
   /**

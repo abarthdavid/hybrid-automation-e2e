@@ -1,4 +1,6 @@
-import type { Product } from '../models/product';
+import type { APIResponse } from '@playwright/test';
+
+import type { CartResponse, Product } from '../models/product';
 
 /**
  * Contract interface for product catalog and cart operations.
@@ -11,8 +13,13 @@ export interface ProductCatalogGateway {
    */
   listProducts(): Promise<Product[]>;
   /**
-   * Adds a product to the shopping cart.
+   * Adds a product to the shopping cart and returns the raw API response.
    * @param productId - The ID of the product to add.
    */
-  addToCart(productId: number): Promise<void>;
+  addToCart(productId: number): Promise<APIResponse>;
+  /**
+   * Adds a product to the shopping cart and returns the parsed response body.
+   * @param productId - The ID of the product to add.
+   */
+  addToCartAndGetResponse(productId: number): Promise<CartResponse>;
 }

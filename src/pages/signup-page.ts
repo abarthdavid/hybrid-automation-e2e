@@ -1,4 +1,7 @@
+import { expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
+
+import { acceptConsentIfPresent } from './consent-helper';
 
 /**
  * Page object model for the signup/login page.
@@ -30,6 +33,7 @@ export class SignupPage {
    */
   async goto(): Promise<void> {
     await this.page.goto('/login');
+    await acceptConsentIfPresent(this.page);
   }
 
   /**
@@ -39,8 +43,11 @@ export class SignupPage {
    */
   async startSignup(name: string, email: string): Promise<void> {
     await this.nameInput.fill(name);
-    await this.signupEmailInput.fill(email);
-    await this.signupButton.click();
+    await this.fillEmailAndSubmit(
+      this.signupEmailInput,
+      email,
+      this.signupButton,
+    );
   }
 
   /**
@@ -49,8 +56,40 @@ export class SignupPage {
    * @param password - The user's password for login.
    */
   async startLogin(email: string, password: string): Promise<void> {
-    await this.loginEmailInput.fill(email);
     await this.loginPasswordInput.fill(password);
-    await this.loginButton.click();
+    await this.fillEmailAndSubmit(
+      this.loginEmailInput,
+      email,
+      this.loginButton,
+    );
+  }
+
+  private async fillEmailAndSubmit(
+    emailInput: Locator,
+    email: string,
+    submitButton: Locator,
+  ): Promise<void> {
+    await emailInput.fill(email);
+    await acceptConsentIfPresent(this.page);
+    await submitButton.click();
+  }
+
+  async expectLoginErrorInvalidEmail(invalidEmail: string): Promise<void> {
+    const loginEmailValidity = await this.loginEmailInput.evaluate((input) => {
+      const emailInput = input as HTMLInputElement;
+
+      return {
+        valid: emailInput.validity.valid,
+        typeMismatch: emailInput.validity.typeMismatch,
+        validationMessage: emailInput.validationMessage,
+      };
+    });
+
+    await expect(this.loginEmailInput).toBeFocused();
+    expect(loginEmailValidity.valid).toBeFalsy();
+    expect(loginEmailValidity.typeMismatch).toBeTruthy();
+    expect(loginEmailValidity.validationMessage).toContain(
+      `Please include an '@' in the email address. '${invalidEmail}' is missing an \'@\'.`,
+    );
   }
 }
