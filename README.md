@@ -19,7 +19,9 @@ src/
   models/        Domain types
   pages/         Page objects based on locators
 tests/
-  e2e/           Playwright specs
+  api/           API-only specs
+  ui/            UI workflow specs
+  utils/         Optional shared test utilities
 ```
 
 ## Commands
@@ -29,11 +31,15 @@ npm run lint
 npm run format:check
 npm run typecheck
 npm test
+npm run test:api
+npm run test:ui
 npm run test:smoke
 npm run report:html
 npm run report:allure
 npm run report:allure:generate
 ```
+
+For layer rules and migration guidance, see [TEST_ORGANIZATION.md](TEST_ORGANIZATION.md).
 
 ## Architecture rules
 

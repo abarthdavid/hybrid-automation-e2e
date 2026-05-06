@@ -14,6 +14,14 @@
 - Copilot/manual approach: page objects were moved behind fixture injection and API interactions remained behind gateway interfaces.
 - Outcome: specs now consume fixture-provided pages and services only.
 
+### 5. Layer split finalization
+
+- Goal: finish the migration from a mixed legacy structure to clear API and UI test layers.
+- Outcome:
+  - API-only cases moved to `tests/api/`
+  - UI interaction flows remain in `tests/ui/`
+- Rule applied: if a test performs UI action, it belongs to the UI layer.
+
 ### 3. Broken selector handling strategy
 
 - Repository status: no dedicated Playwright Healer Agent package or MCP server is configured in this repository.

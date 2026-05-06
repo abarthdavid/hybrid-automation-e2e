@@ -1,6 +1,6 @@
 import { expect, test } from '@/fixtures/automation-fixture';
 
-test.describe('Cart operations', () => {
+test.describe('Cart operations - UI', () => {
   test('adds a product from the API catalog to the cart', async ({
     cartPage,
     productCatalog,
@@ -20,43 +20,6 @@ test.describe('Cart operations', () => {
       selectedProduct.id,
       selectedProduct.name,
     );
-  });
-
-  test.describe('Negative cases', () => {
-    //Please note that the API does not reply as expected, so this test is marked as fixme until such validation is implemented.
-    test.fixme('returns error when adding non-existent product to cart', async ({
-      productCatalog,
-    }) => {
-      const response = await productCatalog.addToCart(45435345435);
-
-      expect(response.status()).not.toBe(200);
-    });
-    //Please note that the API does not reply as expected, so this test is marked as fixme until such validation is implemented.
-    test.fixme('handles invalid product ID format gracefully', async ({
-      productCatalog,
-    }) => {
-      const response = await productCatalog.addToCart(0);
-
-      expect(response.ok()).toBeFalsy();
-    });
-
-    test('returns error when adding negative product ID', async ({
-      productCatalog,
-    }) => {
-      const response = await productCatalog.addToCart(-1);
-
-      expect(response.status()).not.toBe(200);
-    });
-    //Please note that the API does not reply as expected, so this test is marked as fixme until such validation is implemented.
-    test.fixme('verifies API response contains error information for invalid product', async ({
-      productCatalog,
-    }) => {
-      const cartResponse =
-        await productCatalog.addToCartAndGetResponse(99999999);
-
-      expect(cartResponse.responseCode).not.toBe(200);
-      expect(cartResponse.message).toBeDefined();
-    });
   });
 
   test('completes purchase flow and verifies checkout items match added cart items', async ({

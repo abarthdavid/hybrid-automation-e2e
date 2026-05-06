@@ -1,7 +1,7 @@
 import { test } from '../../src/fixtures/automation-fixture';
 import type { AutomationAccount } from '../../src/models/automation-account';
 
-test.describe('Account operations', () => {
+test.describe('Account operations - UI', () => {
   test.beforeEach(async ({ signupPage }) => {
     await signupPage.goto();
   });

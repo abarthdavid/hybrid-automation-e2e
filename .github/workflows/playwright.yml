@@ -42,7 +42,7 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
-      - name: Run Playwright tests
+      - name: Run Playwright API and UI test layers
         run: npx playwright test --shard=${{ matrix.shard }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

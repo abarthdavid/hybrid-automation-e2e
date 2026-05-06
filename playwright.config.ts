@@ -4,7 +4,6 @@ const baseURL = process.env.BASE_URL ?? 'https://automationexercise.com';
 const isCI = Boolean(process.env.CI);
 
 export default defineConfig({
-  testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
@@ -23,7 +22,15 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'chromium',
+      name: 'api',
+      testDir: './tests/api',
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
+    {
+      name: 'ui',
+      testDir: './tests/ui',
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 },
