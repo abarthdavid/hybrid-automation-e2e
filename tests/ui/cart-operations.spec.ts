@@ -5,11 +5,13 @@ test.describe('Cart operations - UI', () => {
     cartPage,
     productCatalog,
   }) => {
-    const products = await productCatalog.listProducts();
+    const result = await productCatalog.listProducts();
 
-    expect(products.length).toBeGreaterThan(0);
+    expect(result.response.status()).toBe(200);
 
-    const selectedProduct = products[0];
+    expect(result.products.length).toBeGreaterThan(0);
+
+    const selectedProduct = result.products[0];
 
     expect(selectedProduct).toBeDefined();
 

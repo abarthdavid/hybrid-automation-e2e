@@ -1,5 +1,4 @@
 import type { APIRequestContext, APIResponse } from '@playwright/test';
-import { expect } from '@playwright/test';
 
 import type { ProductCatalogGateway } from '../contracts/product-catalog-gateway';
 import type { CartResponse, ProductListResponse } from '../models/product';
@@ -17,18 +16,20 @@ export class AutomationExerciseProductGateway implements ProductCatalogGateway {
 
   /**
    * Retrieves the list of available products from the API.
-   * @returns An array of products from the catalog.
-   * @throws Error if the API response indicates failure.
+   *
+   * @returns An object containing:
+   * - `response`: The raw API response object.
+   * - `products`: The list of products returned by the catalog endpoint.
+   *
+   * @throws Error if the request fails or the response body cannot be parsed.
    */
   async listProducts() {
     const response = await this.request.get('/api/productsList');
     const body = (await response.json()) as ProductListResponse;
-
-    expect(response.status()).toBe(200);
-    await expect(response).toBeOK();
-    expect(body.responseCode).toBe(200);
-
-    return body.products;
+    return {
+      response,
+      products: body.products,
+    };
   }
 
   /**

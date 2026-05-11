@@ -2,10 +2,11 @@ import { expect, test } from '@/fixtures/automation-fixture';
 
 test.describe('Cart operations - API', () => {
   test('@smoke lists products from catalog API', async ({ productCatalog }) => {
-    const products = await productCatalog.listProducts();
+    const result = await productCatalog.listProducts();
 
-    expect(products.length).toBeGreaterThan(0);
-    expect(products[0]).toBeDefined();
+    expect(result.response.status()).toBe(200);
+    expect(result.products.length).toBeGreaterThan(0);
+    expect(result.products[0]).toBeDefined();
   });
 
   test.describe('Negative cases', () => {

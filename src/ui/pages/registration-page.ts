@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
-import type { AutomationAccount } from '../models/automation-account';
+import type { AutomationAccount } from '../../api/models/automation-account';
 import { acceptConsentIfPresent } from './consent-helper';
 
 /**

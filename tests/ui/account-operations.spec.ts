@@ -1,5 +1,4 @@
 import { test } from '../../src/fixtures/automation-fixture';
-import type { AutomationAccount } from '../../src/models/automation-account';
 
 test.describe('Account operations - UI', () => {
   test.beforeEach(async ({ signupPage }) => {
@@ -40,15 +39,10 @@ test.describe('Account operations - UI', () => {
   });
 
   test.describe('Authentication', () => {
-    let createdAccount: AutomationAccount;
-
-    test.beforeEach(async ({ automationAccount }) => {
-      createdAccount = await automationAccount.createViaApi();
-    });
-
     test('user should be able to logout via UI', async ({
       mainPage,
       signupPage,
+      createdAccount,
     }) => {
       await signupPage.startLogin(
         createdAccount.email,
@@ -66,10 +60,10 @@ test.describe('Account operations - UI', () => {
 
     test('user should not be able to login with incorrect e-mail', async ({
       signupPage,
+      createdAccount,
     }) => {
       const invalidEmail = 'testtest.com';
 
-      await signupPage.goto();
       await signupPage.startLogin(invalidEmail, createdAccount.password);
       await signupPage.expectLoginErrorInvalidEmail(invalidEmail);
     });

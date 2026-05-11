@@ -8,10 +8,16 @@ import type { CartResponse, Product } from '../models/product';
  */
 export interface ProductCatalogGateway {
   /**
-   * Retrieves the list of available products.
-   * @returns An array of products in the catalog.
+   * Retrieves the list of available products from the catalog API.
+   *
+   * @returns An object containing:
+   * - `response`: The raw API response object.
+   * - `products`: The list of products returned by the catalog endpoint.
    */
-  listProducts(): Promise<Product[]>;
+  listProducts(): Promise<{
+    response: APIResponse;
+    products: Product[];
+  }>;
   /**
    * Adds a product to the shopping cart and returns the raw API response.
    * @param productId - The ID of the product to add.

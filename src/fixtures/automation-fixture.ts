@@ -1,22 +1,22 @@
 import { expect, test as base } from '@playwright/test';
 import * as allure from 'allure-js-commons';
 
-import { AutomationAccountBuilder } from '../builders/automation-account-builder';
+import { AutomationAccountBuilder } from '../api/builders/automation-account-builder';
 import type {
   AccountGatewayResponse,
   ApiMessageResponse,
-} from '../contracts/automation-account-gateway';
-import type { ProductCatalogGateway } from '../contracts/product-catalog-gateway';
-import { GatewayFactory } from '../factories/gateway-factory';
+} from '../api/contracts/automation-account-gateway';
+import type { ProductCatalogGateway } from '../api/contracts/product-catalog-gateway';
+import { GatewayFactory } from '../api/factories/gateway-factory';
 import type {
   AutomationAccount,
   AutomationAccountCredentials,
-} from '../models/automation-account';
-import { CartPage } from '../pages/cart-page';
-import { acceptConsentIfPresent } from '../pages/consent-helper';
-import { SignupPage } from '../pages/signup-page';
-import { MainPage } from '../pages/main-page';
-import { RegistrationPage } from '../pages/registration-page';
+} from '../api/models/automation-account';
+import { CartPage } from '../ui/pages/cart-page';
+import { acceptConsentIfPresent } from '../ui/pages/consent-helper';
+import { SignupPage } from '../ui/pages/signup-page';
+import { MainPage } from '../ui/pages/main-page';
+import { RegistrationPage } from '../ui/pages/registration-page';
 
 type CleanupFailure = {
   email: string;
@@ -144,6 +144,8 @@ type AutomationFixtures = {
   registrationPage: RegistrationPage;
   /** Page object for the signup/login page. */
   signupPage: SignupPage;
+  /** Created automation account for the current test. */
+  createdAccount: AutomationAccount;
 };
 
 /**
@@ -153,6 +155,11 @@ type AutomationFixtures = {
 export const test = base.extend<AutomationFixtures>({
   accountBuilder: async ({}, use) => {
     await use(new AutomationAccountBuilder());
+  },
+  createdAccount: async ({ automationAccount }, use) => {
+    const account = await automationAccount.createViaApi();
+
+    await use(account);
   },
   automationAccount: async ({ request, accountBuilder }, use, testInfo) => {
     const accountsToDelete: AutomationAccountCredentials[] = [];
