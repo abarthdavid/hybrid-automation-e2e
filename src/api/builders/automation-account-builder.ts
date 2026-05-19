@@ -1,5 +1,8 @@
 import { fakerEN as faker } from '@faker-js/faker';
-import type { AutomationAccount } from '../models/automation-account';
+import {
+  automationAccountTitles,
+  type AutomationAccount,
+} from '../models/automation-account';
 
 /**
  * Builder class for creating automation test accounts.
@@ -26,7 +29,7 @@ export class AutomationAccountBuilder {
       name: `${firstName} ${lastName}`,
       email: `${localPart}+${Date.now()}@${domain}`,
       password: 'Pass123!',
-      title: faker.helpers.arrayElement(['Mr', 'Mrs']),
+      title: faker.helpers.arrayElement(automationAccountTitles),
       birth_date: String(faker.number.int({ min: 1, max: 28 })),
       birth_month: String(faker.number.int({ min: 1, max: 12 })),
       birth_year: String(faker.number.int({ min: 1985, max: 2005 })),

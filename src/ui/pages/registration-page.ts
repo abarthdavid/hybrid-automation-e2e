@@ -1,7 +1,10 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
-import type { AutomationAccount } from '../../api/models/automation-account';
+import type {
+  AutomationAccount,
+  AutomationAccountTitle,
+} from '../../api/models/automation-account';
 import { acceptConsentIfPresent } from './consent-helper';
 
 /**
@@ -9,7 +12,6 @@ import { acceptConsentIfPresent } from './consent-helper';
  * Provides methods to interact with and verify the signup/registration form.
  */
 export class RegistrationPage {
-  private readonly titleMrRadio: Locator;
   private readonly passwordInput: Locator;
   private readonly birthDaySelect: Locator;
   private readonly birthMonthSelect: Locator;
@@ -33,7 +35,6 @@ export class RegistrationPage {
    * @param page - The Playwright page object used to locate elements.
    */
   constructor(private readonly page: Page) {
-    this.titleMrRadio = page.getByRole('radio', { name: 'Mr.' });
     this.passwordInput = page.getByRole('textbox', { name: 'Password *' });
     this.birthDaySelect = page.locator('#days');
     this.birthMonthSelect = page.locator('#months');
@@ -72,7 +73,7 @@ export class RegistrationPage {
    * @param account - The automation account containing all required registration details.
    */
   async completeRegistration(account: AutomationAccount): Promise<void> {
-    await this.titleMrRadio.check();
+    await this.getTitleRadio(account.title).check();
     await this.passwordInput.fill(account.password);
     await this.birthDaySelect.selectOption(account.birth_date);
     await this.birthMonthSelect.selectOption(account.birth_month);
@@ -88,6 +89,10 @@ export class RegistrationPage {
     await this.zipCodeInput.fill(account.zipcode);
     await this.mobileNumberInput.fill(account.mobile_number);
     await this.createAccountButton.click();
+  }
+
+  private getTitleRadio(title: AutomationAccountTitle): Locator {
+    return this.page.getByRole('radio', { name: `${title}.` });
   }
 
   /**

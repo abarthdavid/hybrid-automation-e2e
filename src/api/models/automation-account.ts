@@ -8,14 +8,18 @@ export type AutomationAccountCredentials = {
   password: string;
 };
 
+export const automationAccountTitles = ['Mr', 'Mrs'] as const;
+
+export type AutomationAccountTitle = (typeof automationAccountTitles)[number];
+
 /**
  * Represents a complete automation test account with all registration details.
  */
 export type AutomationAccount = AutomationAccountCredentials & {
   /** The full name of the user (for signup). */
   name: string;
-  /** The title of the user (Mr, Mrs, Miss). */
-  title: 'Mr' | 'Mrs' | 'Miss';
+  /** The title of the user. */
+  title: AutomationAccountTitle;
   /** The day of birth. */
   birth_date: string;
   /** The month of birth. */
